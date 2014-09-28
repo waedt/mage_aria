@@ -1,5 +1,3 @@
-// TODO: Finish me!
-
 package mage.sets.aria;
 
 import java.util.UUID;
@@ -7,6 +5,11 @@ import mage.MageInt;
 import mage.cards.CardImpl;
 import mage.constants.CardType;
 import mage.constants.Rarity;
+import mage.abilities.common.AttacksTriggeredAbility;
+import mage.abilities.effects.common.continious.GainAbilitySourceEffect;
+import mage.abilities.keyword.FlyingAbility;
+import mage.constants.Duration;
+
 
 public class AerolinianGlider extends CardImpl {
 
@@ -18,6 +21,9 @@ public class AerolinianGlider extends CardImpl {
         this.power = new MageInt(2);
         this.toughness = new MageInt(2);
         this.color.setBlue(true);
+
+        // Whenever Aerolinian Glider attacks, it gains flying until end of turn.
+        this.addAbility(new AttacksTriggeredAbility(new GainAbilitySourceEffect(FlyingAbility.getInstance(), Duration.EndOfTurn), false));
 
         /*
         Card Text:

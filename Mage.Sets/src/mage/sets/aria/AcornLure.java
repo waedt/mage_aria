@@ -1,5 +1,3 @@
-// TODO: Finish me!
-
 package mage.sets.aria;
 
 import java.util.UUID;
@@ -7,6 +5,9 @@ import mage.MageInt;
 import mage.cards.CardImpl;
 import mage.constants.CardType;
 import mage.constants.Rarity;
+import mage.abilities.keyword.BuybackAbility;
+import mage.abilities.effects.common.CreateTokenEffect;
+import mage.game.permanent.token.SquirrelToken;
 
 public class AcornLure extends CardImpl {
 
@@ -16,6 +17,11 @@ public class AcornLure extends CardImpl {
 
         this.color.setGreen(true);
 
+        // Buyback {4}
+        this.addAbility(new BuybackAbility("{4}"));
+
+        // Put a 1/1 green Squirrel creature token onto the battlefield.
+        this.getSpellAbility().addEffect(new CreateTokenEffect(new SquirrelToken()));
         /*
         Card Text:
         ----------

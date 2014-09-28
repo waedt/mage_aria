@@ -1,5 +1,3 @@
-// TODO: Finish me!
-
 package mage.sets.aria;
 
 import java.util.UUID;
@@ -7,6 +5,7 @@ import mage.MageInt;
 import mage.cards.CardImpl;
 import mage.constants.CardType;
 import mage.constants.Rarity;
+import mage.abilities.keyword.HexproofAbility;
 
 public class AloofNoble extends CardImpl {
 
@@ -19,6 +18,9 @@ public class AloofNoble extends CardImpl {
         this.power = new MageInt(2);
         this.toughness = new MageInt(3);
         this.color.setBlue(true);
+
+        // Hexproof
+        this.addAbility(HexproofAbility.getInstance());
 
         /*
         Card Text:
