@@ -20,6 +20,7 @@ public class ConstructedFormats {
 
     private static final String[] constructedFormats = {
             ALL, STANDARD, EXTENDED, MODERN,
+            "Aria",
             "* Khans of Tarkir Block", "Khans of Tarkir", /*"Fate Reforged",*/
             "* Theros Block", "Journey into Nyx", "Born of the Gods", "Theros",
             "* Return to Ravnica Block", "Dragon's Maze", "Gatecrash", "Return to Ravnica",
@@ -90,6 +91,9 @@ public class ConstructedFormats {
     }
 
     public static List<String> getSetsByFormat(String format) {
+        if (format.equals("Aria")) {
+            return Arrays.asList("ARI");
+        }
         if (format.equals("* Khans of Tarkir Block")) {
             return Arrays.asList("KTK", "FRF");
         }
