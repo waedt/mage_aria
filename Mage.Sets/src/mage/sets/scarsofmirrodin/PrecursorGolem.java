@@ -49,6 +49,7 @@ import mage.game.Game;
 import mage.game.events.GameEvent;
 import mage.game.permanent.Permanent;
 import mage.game.stack.Spell;
+import mage.game.permanent.token.GolemToken;
 import mage.target.Target;
 import mage.target.targetpointer.FixedTarget;
 
