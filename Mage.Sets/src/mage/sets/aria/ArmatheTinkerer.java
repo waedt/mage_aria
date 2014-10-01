@@ -32,7 +32,7 @@ public class ArmatheTinkerer extends CardImpl {
     }
 
     public ArmatheTinkerer(UUID ownerId) {
-        super(ownerId, 3, "Arma the Tinkerer", Rarity.RARE, new CardType[]{CardType.CREATURE}, "{W}{W}");
+        super(ownerId, 3, "Arma the Tinkerer", Rarity.MYTHIC, new CardType[]{CardType.CREATURE}, "{W}{W}");
         this.expansionSetCode = "ARI";
 
         this.supertype.add("Lengendary");

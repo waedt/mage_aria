@@ -1,9 +1,10 @@
-// TODO: Finish me!
-
 package mage.sets.aria;
 
 import java.util.UUID;
+
 import mage.MageInt;
+import mage.abilities.common.SpellCastAllTriggeredAbility;
+import mage.abilities.effects.common.TapSourceEffect;
 import mage.cards.CardImpl;
 import mage.constants.CardType;
 import mage.constants.Rarity;
@@ -19,6 +20,9 @@ public class AwestruckDispe extends CardImpl {
         this.power = new MageInt(4);
         this.toughness = new MageInt(4);
         this.color.setBlack(true);
+
+        // Whenever a player casts a spell, tap Awestruck Dispe.
+        this.addAbility(new SpellCastAllTriggeredAbility(new TapSourceEffect(), false));
 
         /*
         Card Text:
