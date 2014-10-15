@@ -70,7 +70,7 @@ public class HarshDeceiver extends CardImpl {
         this.addAbility(new SimpleActivatedAbility(Zone.BATTLEFIELD, new LookLibraryControllerEffect(), new GenericManaCost(1)));  
 
         // {2}: Reveal the top card of your library. If it's a land card, untap {this} and it gets +1/+1 until end of turn.
-        Ability ability = new FeralDeceiverAbility(Zone.BATTLEFIELD, new UntapSourceEffect(), new ManaCostsImpl("{2}"));
+        Ability ability = new HarshDeceiverAbility(Zone.BATTLEFIELD, new UntapSourceEffect(), new ManaCostsImpl("{2}"));
         ability.addEffect(new BoostSourceEffect(1,1,Duration.EndOfTurn));
         this.addAbility(ability);
     }

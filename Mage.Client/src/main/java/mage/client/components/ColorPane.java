@@ -3,7 +3,6 @@ package mage.client.components;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Graphics;
-import static javafx.scene.paint.Color.color;
 import javax.swing.JEditorPane;
 import javax.swing.JPanel;
 import javax.swing.JTextPane;
