@@ -695,7 +695,7 @@ public class MageFrame extends javax.swing.JFrame implements MageClient {
         String server = prefs.get("serverAddress", "");
         int port = Integer.parseInt(prefs.get("serverPort", ""));
         String proxyServer = prefs.get("proxyAddress", "");
-        int proxyPort = Integer.parseInt(prefs.get("proxyPort", ""));
+        int proxyPort = Integer.parseInt(prefs.get("proxyPort", "0"));
         ProxyType proxyType = ProxyType.valueByText(prefs.get("proxyType", "None"));
         String proxyUsername = prefs.get("proxyUsername", "");
         String proxyPassword = prefs.get("proxyPassword", "");
@@ -1231,12 +1231,14 @@ public class MageFrame extends javax.swing.JFrame implements MageClient {
 
     @Override
     public void disconnected(final boolean errorCall) {
-        if (SwingUtilities.isEventDispatchThread()) {
+        if (SwingUtilities.isEventDispatchThread()) { // Returns true if the current thread is an AWT event dispatching thread.
+            logger.info("DISCONNECTED (Event Dispatch Thread)");
             setStatusText("Not connected");
             disableButtons();
             hideGames();
             hideTables();
         } else {
+            logger.info("DISCONNECTED (NO Event Dispacth Thread)");
             SwingUtilities.invokeLater(new Runnable() {
                 @Override
                 public void run() {
@@ -1248,6 +1250,8 @@ public class MageFrame extends javax.swing.JFrame implements MageClient {
                         if (performConnect()) {
                             enableButtons();
                         }
+                    } else {
+                        session.disconnect(false);
                     }
                 }
             });

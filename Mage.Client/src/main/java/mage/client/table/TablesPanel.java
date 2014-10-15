@@ -83,7 +83,6 @@ import mage.remote.Session;
 import mage.view.MatchView;
 import mage.view.RoomUsersView;
 import mage.view.TableView;
-import mage.view.UsersView;
 import org.apache.log4j.Logger;
 
 /**
@@ -143,6 +142,8 @@ public class TablesPanel extends javax.swing.JPanel {
                 UUID tableId = (UUID)tableModel.getValueAt(modelRow, TableTableModel.ACTION_COLUMN + 3);
                 UUID gameId = (UUID)tableModel.getValueAt(modelRow, TableTableModel.ACTION_COLUMN + 2);
                 String action = (String)tableModel.getValueAt(modelRow, TableTableModel.ACTION_COLUMN);
+                String deckType = (String)tableModel.getValueAt(modelRow, TableTableModel.COLUMN_DECK_TYPE);
+                String info = (String)tableModel.getValueAt(modelRow, TableTableModel.COLUMN_INFO);
                 boolean isTournament = (Boolean)tableModel.getValueAt(modelRow, TableTableModel.ACTION_COLUMN + 1);
                 String owner = (String)tableModel.getValueAt(modelRow, 1);
                 switch (action) {
@@ -170,10 +171,18 @@ public class TablesPanel extends javax.swing.JPanel {
                         }
                         if (isTournament) {
                             logger.info("Joining tournament " + tableId);
-                            session.joinTournamentTable(roomId, tableId, session.getUserName(), "Human", 1);
+                            if (deckType.startsWith("Limited")) {
+                                if (!info.startsWith("PW")) {
+                                    session.joinTournamentTable(roomId, tableId, session.getUserName(), "Human", 1, null, "");
+                                } else {
+                                    joinTableDialog.showDialog(roomId, tableId, true, deckType.startsWith("Limited"));
+                                }
+                            } else {
+                                joinTableDialog.showDialog(roomId, tableId, true, deckType.startsWith("Limited"));
+                            }
                         } else {
                             logger.info("Joining table " + tableId);
-                            joinTableDialog.showDialog(roomId, tableId);
+                            joinTableDialog.showDialog(roomId, tableId, false, false);
                         }  
                         break;
                     case "Remove":
@@ -242,8 +251,8 @@ public class TablesPanel extends javax.swing.JPanel {
     private void saveDividerLocations() {
         // save panel sizes and divider locations.
         Rectangle rec = MageFrame.getDesktop().getBounds();
-        StringBuilder sb = new StringBuilder(Double.toString(rec.getWidth())).append("x").append(Double.toString(rec.getHeight()));
-        PreferencesDialog.saveValue(PreferencesDialog.KEY_MAGE_PANEL_LAST_SIZE, sb.toString());
+        String sb = Double.toString(rec.getWidth()) + "x" + Double.toString(rec.getHeight());
+        PreferencesDialog.saveValue(PreferencesDialog.KEY_MAGE_PANEL_LAST_SIZE, sb);
         PreferencesDialog.saveValue(PreferencesDialog.KEY_TABLES_DIVIDER_LOCATION_1, Integer.toString(this.jSplitPane1.getDividerLocation()));
         PreferencesDialog.saveValue(PreferencesDialog.KEY_TABLES_DIVIDER_LOCATION_2, Integer.toString(this.jSplitPane2.getDividerLocation()));
         PreferencesDialog.saveValue(PreferencesDialog.KEY_TABLES_DIVIDER_LOCATION_3, Integer.toString(chatPanel.getSplitDividerLocation()));
@@ -253,9 +262,9 @@ public class TablesPanel extends javax.swing.JPanel {
         Rectangle rec = MageFrame.getDesktop().getBounds();
         if (rec != null) {
             String size = PreferencesDialog.getCachedValue(PreferencesDialog.KEY_MAGE_PANEL_LAST_SIZE, null);
-            StringBuilder sb = new StringBuilder(Double.toString(rec.getWidth())).append("x").append(Double.toString(rec.getHeight()));
+            String sb = Double.toString(rec.getWidth()) + "x" + Double.toString(rec.getHeight());
             // use divider positions only if screen size is the same as it was the time the settings were saved
-            if (size != null && size.equals(sb.toString())) {
+            if (size != null && size.equals(sb)) {
                 String location = PreferencesDialog.getCachedValue(PreferencesDialog.KEY_TABLES_DIVIDER_LOCATION_1, null);
                 if (location != null && jSplitPane1 != null) {
                     jSplitPane1.setDividerLocation(Integer.parseInt(location));
@@ -632,8 +641,8 @@ public class TablesPanel extends javax.swing.JPanel {
                 options.setFreeMulligans(2);
                 table = session.createTable(roomId,    options);
 
-                session.joinTable(roomId, table.getTableId(), "Human", "Human", 1, DeckImporterUtil.importDeck("test.dck"));
-                session.joinTable(roomId, table.getTableId(), "Computer", "Computer - mad", 5, DeckImporterUtil.importDeck("test.dck"));
+                session.joinTable(roomId, table.getTableId(), "Human", "Human", 1, DeckImporterUtil.importDeck("test.dck"),"");
+                session.joinTable(roomId, table.getTableId(), "Computer", "Computer - mad", 5, DeckImporterUtil.importDeck("test.dck"),"");
                 session.startMatch(roomId, table.getTableId());
             } catch (HeadlessException ex) {
                 handleError(ex);
@@ -696,6 +705,8 @@ private void chkShowCompletedActionPerformed(java.awt.event.ActionEvent evt) {//
 
 class TableTableModel extends AbstractTableModel {
 
+    public static final int COLUMN_DECK_TYPE = 5; // column the deck type is located (starting with 0)
+    public static final int COLUMN_INFO = 6;
     public static final int ACTION_COLUMN = 9; // column the action is located (starting with 0)
 
     private final String[] columnNames = new String[]{"Match Name", "Owner / Players", "Game Type", "Wins", "Free Mulligans", "Deck Type", "Info", "Status", "Created / Started", "Action"};

@@ -50,6 +50,8 @@ import mage.server.TableManager;
 import mage.server.User;
 import mage.server.UserManager;
 import mage.server.tournament.TournamentManager;
+import mage.server.util.ConfigSettings;
+import mage.server.util.ThreadExecutor;
 import mage.view.MatchView;
 import mage.view.RoomUsersView;
 import mage.view.TableView;
@@ -127,7 +129,11 @@ public class GamesRoomImpl extends RoomImpl implements GamesRoom, Serializable {
 
         Collections.sort(users, new UserNameSorter());                
         List<RoomUsersView> roomUserInfo = new ArrayList<>();
-        roomUserInfo.add(new RoomUsersView(users, GameManager.getInstance().getNumberActiveGames()));
+        roomUserInfo.add(new RoomUsersView(users, 
+                GameManager.getInstance().getNumberActiveGames(),
+                ThreadExecutor.getInstance().getActiveThreads(ThreadExecutor.getInstance().getGameExecutor()),
+                ConfigSettings.getInstance().getMaxGameThreads()
+        ));
         roomUsersView = roomUserInfo;
     }
 
@@ -137,9 +143,9 @@ public class GamesRoomImpl extends RoomImpl implements GamesRoom, Serializable {
     }
 
     @Override
-    public boolean joinTable(UUID userId, UUID tableId, String name, String playerType, int skill, DeckCardLists deckList) throws MageException {
+    public boolean joinTable(UUID userId, UUID tableId, String name, String playerType, int skill, DeckCardLists deckList, String password) throws MageException {
         if (tables.containsKey(tableId)) {
-            return TableManager.getInstance().joinTable(userId, tableId, name, playerType, skill, deckList);
+            return TableManager.getInstance().joinTable(userId, tableId, name, playerType, skill, deckList, password);
         } else {
             return false;
         }
@@ -153,9 +159,9 @@ public class GamesRoomImpl extends RoomImpl implements GamesRoom, Serializable {
     }
 
     @Override
-    public boolean joinTournamentTable(UUID userId, UUID tableId, String name, String playerType, int skill) throws GameException {
+    public boolean joinTournamentTable(UUID userId, UUID tableId, String name, String playerType, int skill, DeckCardLists deckList, String password) throws GameException {
         if (tables.containsKey(tableId)) {
-            return TableManager.getInstance().joinTournament(userId, tableId, name, playerType, skill);
+            return TableManager.getInstance().joinTournament(userId, tableId, name, playerType, skill, deckList, password);
         } else {
             return false;
         }

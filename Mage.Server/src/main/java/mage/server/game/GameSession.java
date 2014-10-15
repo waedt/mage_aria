@@ -44,6 +44,7 @@ import org.apache.log4j.Logger;
 import java.io.Serializable;
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -62,6 +63,7 @@ public class GameSession extends GameWatcher {
 
     private ScheduledFuture<?> futureTimeout;
     protected static ScheduledExecutorService timeoutExecutor = ThreadExecutor.getInstance().getTimeoutExecutor();
+    private static final ExecutorService callExecutor = ThreadExecutor.getInstance().getCallExecutor();
 
     private UserData userData;
 
@@ -274,11 +276,32 @@ public class GameSession extends GameWatcher {
         return game.getId();
     }
 
-    public void kill() {
+    public void quitGame() {
         if (game != null) {
-            if (game.getPlayer(playerId).isInGame()) {
-                logger.debug("QUIT game playerId: " + playerId + " gameId: " + game.getId());
-                game.quit(playerId);
+            final Player player = game.getPlayer(playerId);
+            if (player != null && player.isInGame()) {
+                callExecutor.execute(
+                    new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                player.quit(game);
+                            } catch (Exception ex) {
+                                if (ex != null) {
+                                    logger.fatal("Game session game quit exception " + (ex.getMessage() == null ? "null":ex.getMessage()));
+                                    logger.debug("- gameId:" + game.getId() +"  playerId: " + playerId);
+                                    if (ex.getCause() != null) {
+                                        logger.debug("- Cause: " + (ex.getCause().getMessage() == null ? "null":ex.getCause().getMessage()));
+                                    }
+                                    ex.printStackTrace();
+                                }else {
+                                    logger.fatal("Game session game quit exception - null  gameId:" + game.getId() +"  playerId: " + playerId);
+                                }
+                            }
+                        }
+                    }
+                );
+                
             }
         } else {
             logger.error("game object missing   playerId: " + (playerId == null ? "[null]":playerId));

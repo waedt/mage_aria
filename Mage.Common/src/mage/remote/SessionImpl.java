@@ -34,7 +34,6 @@ import java.net.MalformedURLException;
 import java.net.PasswordAuthentication;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -250,8 +249,8 @@ public class SessionImpl implements Session {
                 listenerMetadata.put(ConnectionValidator.VALIDATOR_PING_PERIOD, "1000000");
                 listenerMetadata.put(ConnectionValidator.VALIDATOR_PING_TIMEOUT, "900000");
             } else {
-                listenerMetadata.put(ConnectionValidator.VALIDATOR_PING_PERIOD, "10000");
-                listenerMetadata.put(ConnectionValidator.VALIDATOR_PING_TIMEOUT, "9000");
+                listenerMetadata.put(ConnectionValidator.VALIDATOR_PING_PERIOD, "15000");
+                listenerMetadata.put(ConnectionValidator.VALIDATOR_PING_TIMEOUT, "13000");
             }
             callbackClient.connect(new ClientConnectionListener(), listenerMetadata);
 
@@ -364,14 +363,20 @@ public class SessionImpl implements Session {
         }
     }
 
+    /**
+     *
+     * @param errorCall - was connection lost because of error
+     */
     @Override
     public synchronized void disconnect(boolean errorCall) {
         if (isConnected()) {
+            logger.info("DISCONNECT still connected");
             sessionState = SessionState.DISCONNECTING;
         }
         if (connection == null || sessionState == SessionState.DISCONNECTED) {
             return;
         }
+        
         try {
             callbackClient.removeListener(callbackHandler);
             callbackClient.disconnect();
@@ -379,15 +384,22 @@ public class SessionImpl implements Session {
         } catch (Throwable ex) {
             logger.fatal("Error disconnecting ...", ex);
         }
+
         if (sessionState == SessionState.DISCONNECTING || sessionState == SessionState.CONNECTING) {
             sessionState = SessionState.DISCONNECTED;
             logger.info("Disconnected ... ");
-            client.disconnected(errorCall);
             if (errorCall) {
                 client.showError("Network error.  You have been disconnected");
             }
+            client.disconnected(errorCall); // MageFrame with check to reconnect
             pingTime.clear();
         }
+    }
+
+    @Override
+    public synchronized void reconnect(Throwable throwable) {
+        logger.info("RECONNECT - Connected: " + isConnected());
+        client.disconnected(true);
     }
 
     @Override
@@ -412,12 +424,14 @@ public class SessionImpl implements Session {
     }
 
     class ClientConnectionListener implements ConnectionListener {
+        // http://docs.jboss.org/jbossremoting/2.5.3.SP1/html/chapter-connection-failure.html
+
         @Override
         public void handleConnectionException(Throwable throwable, Client client) {
             logger.info("connection to server lost - " + throwable.getMessage());
             throwable.printStackTrace();
-            // that's maybe not correct to disconnect here.
-            // disconnect(true);
+
+            reconnect(throwable);
         }
     }
 
@@ -437,6 +451,11 @@ public class SessionImpl implements Session {
     @Override
     public List<GameTypeView> getGameTypes() {
         return serverState.getGameTypes();
+    }
+
+    @Override
+    public List<GameTypeView> getTournamentGameTypes() {
+        return serverState.getTournamentGameTypes();
     }
 
     @Override
@@ -556,10 +575,10 @@ public class SessionImpl implements Session {
     }
 
     @Override
-    public boolean joinTable(UUID roomId, UUID tableId, String playerName, String playerType, int skill, DeckCardLists deckList) {
+    public boolean joinTable(UUID roomId, UUID tableId, String playerName, String playerType, int skill, DeckCardLists deckList, String password) {
         try {
             if (isConnected()) {
-                return server.joinTable(sessionId, roomId, tableId, playerName, playerType, skill, deckList);
+                return server.joinTable(sessionId, roomId, tableId, playerName, playerType, skill, deckList, password);
             }
         } catch (InvalidDeckException iex) {
             handleInvalidDeckException(iex);
@@ -574,10 +593,10 @@ public class SessionImpl implements Session {
     }
 
     @Override
-    public boolean joinTournamentTable(UUID roomId, UUID tableId, String playerName, String playerType, int skill) {
+    public boolean joinTournamentTable(UUID roomId, UUID tableId, String playerName, String playerType, int skill, DeckCardLists deckList, String password) {
         try {
             if (isConnected()) {
-                return server.joinTournamentTable(sessionId, roomId, tableId, playerName, playerType, skill);
+                return server.joinTournamentTable(sessionId, roomId, tableId, playerName, playerType, skill, deckList, password);
             }
         } catch (GameException ex) {
             handleGameException(ex);

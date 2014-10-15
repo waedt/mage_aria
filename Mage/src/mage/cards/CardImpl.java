@@ -326,13 +326,13 @@ public abstract class CardImpl extends MageObjectImpl implements Card {
                         game.getState().getCommand().remove((Commander)game.getObject(objectId));
                         break;
                     case STACK:
-                        StackObject stackObject = game.getStack().getStackObject(getId());
+                        StackObject stackObject = game.getStack().getSpell(getId());
                         if (stackObject != null) {
                             game.getStack().remove(stackObject);
                         }
                         break;
                     case PICK:
-                    case BATTLEFIELD: // for sacrificing permanents
+                    case BATTLEFIELD: // for sacrificing permanents or putting to library
                         break;
                     default:
                         Card sourceCard = game.getCard(sourceId);
@@ -662,7 +662,11 @@ public abstract class CardImpl extends MageObjectImpl implements Card {
         if (info == null) {
             info = new HashMap<>();
         }
-        info.put(key, value);
+        if (value == null || value.isEmpty()) {
+            info.remove(key);
+        } else {
+            info.put(key, value);
+        }
     }
 
     @Override

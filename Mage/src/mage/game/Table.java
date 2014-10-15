@@ -148,7 +148,7 @@ public class Table implements Serializable {
      */
     public void cleanUp() {
         if (match != null) {
-            match.cleanUpOnMatchEnd(isTournament);
+            match.cleanUpOnMatchEnd(false, false);
         }
     }
 
@@ -160,7 +160,7 @@ public class Table implements Serializable {
         if (validator != null) {
             return validator.getName();
         }
-        return "<deckt type missing>";
+        return "<deck type missing>";
     }
 
     public Date getCreateTime() {

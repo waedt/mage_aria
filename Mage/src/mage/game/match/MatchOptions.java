@@ -50,6 +50,8 @@ public class MatchOptions implements Serializable {
     protected String deckType;
     protected boolean limited;
     protected List<String> playerTypes = new ArrayList<>();
+    protected String password;
+
     /**
      * Time each player has during the game to play using his\her priority.
      */
@@ -58,6 +60,7 @@ public class MatchOptions implements Serializable {
     public MatchOptions(String name, String gameType) {
         this.name = name;
         this.gameType = gameType;
+        this.password = "";
     }
 
     public String getName() {
@@ -138,6 +141,14 @@ public class MatchOptions implements Serializable {
     
     public void setMatchTimeLimit(MatchTimeLimit matchTimeLimit) {
         this.matchTimeLimit = matchTimeLimit;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 
 }

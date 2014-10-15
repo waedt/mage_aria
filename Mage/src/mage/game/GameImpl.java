@@ -510,11 +510,11 @@ public abstract class GameImpl implements Game, Serializable {
     }
 
     @Override
-    public void restoreState(int bookmark) {
+    public void restoreState(int bookmark, String context) {
         if (!simulation && !this.hasEnded()) { // if player left or game is over no undo is possible - this could lead to wrong winner
             if (bookmark != 0) {
                 if (!savedStates.contains(bookmark - 1)) {
-                    throw new UnsupportedOperationException("It was not possible to do the requested undo operation (bookmark " + (bookmark -1) + " does not exist)");
+                    throw new UnsupportedOperationException("It was not possible to do the requested undo operation (bookmark " + (bookmark -1) + " does not exist) context: " + context);
                 }
                 int stateNum = savedStates.get(bookmark - 1);
                 removeBookmark(bookmark);
@@ -619,7 +619,22 @@ public abstract class GameImpl implements Game, Serializable {
         }
         if (gameOver(null)) {
             winnerId = findWinnersAndLosers();
-            logger.info("GAME ended  gameId: " + this.getId());
+            StringBuilder sb = new StringBuilder("GAME ended  gameId: ").append(this.getId()).append(" ");
+            int count = 0;
+            for (Player player: this.getState().getPlayers().values()) {
+                if (count > 0) {
+                    sb.append(" - ");
+                }
+                sb.append("[").append(player.getName()).append(" => ");
+                sb.append(player.hasWon() ? "W":"");
+                sb.append(player.hasLost()? "L":"");
+                sb.append(player.hasQuit() ? "Q":"");
+                sb.append(player.hasIdleTimeout() ? "I":"");
+                sb.append(player.hasTimerTimeout() ? "T":"");
+                sb.append("]");
+                count++;
+            }
+            logger.info(sb.toString());
         }
     }
 
@@ -820,9 +835,9 @@ public abstract class GameImpl implements Game, Serializable {
         state.getWatchers().add(new MorbidWatcher());
         state.getWatchers().add(new CastSpellLastTurnWatcher());
         state.getWatchers().add(new SpellsCastThisTurnWatcher());
-        state.getWatchers().add(new MiracleWatcher());
         state.getWatchers().add(new SoulbondWatcher());
         state.getWatchers().add(new PlayerLostLifeWatcher());
+        state.getWatchers().add(new BlockedAttackerWatcher());
 
         //20100716 - 103.5
         for (UUID playerId: state.getPlayerList(startingPlayerId)) {
@@ -1017,7 +1032,7 @@ public abstract class GameImpl implements Game, Serializable {
         if (player != null) {
             int bookmark = player.getStoredBookmark();
             if (bookmark != -1) {
-                restoreState(bookmark);
+                restoreState(bookmark, "undo");
                 player.setStoredBookmark(-1);
                 fireUpdatePlayersEvent();
             }
@@ -1107,7 +1122,7 @@ public abstract class GameImpl implements Game, Serializable {
                         logger.fatal("Game exception gameId: " + getId(), ex);
                         ex.printStackTrace();
                         this.fireErrorEvent("Game exception occurred: ", ex);
-                        restoreState(bookmark);
+                        restoreState(bookmark, "");
                         bookmark = 0;
                         continue;
                     }
@@ -2441,4 +2456,10 @@ public abstract class GameImpl implements Game, Serializable {
     public void setPriorityTime(int priorityTime) {
         this.priorityTime = priorityTime;
     }
+
+    @Override
+    public UUID getStartingPlayerId() {
+        return startingPlayerId;
+    }
+
 }

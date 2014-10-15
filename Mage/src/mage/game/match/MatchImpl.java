@@ -28,18 +28,25 @@
 
 package mage.game.match;
 
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Random;
+import java.util.UUID;
 import mage.cards.decks.Deck;
 import mage.game.Game;
 import mage.game.GameException;
+import mage.game.GameInfo;
 import mage.game.events.Listener;
 import mage.game.events.TableEvent;
 import mage.game.events.TableEvent.EventType;
 import mage.game.events.TableEventSource;
 import mage.players.Player;
-
-import java.util.*;
+import mage.players.PlayerList;
+import mage.util.DateFormat;
 import org.apache.log4j.Logger;
-
 
 /**
  *
@@ -52,6 +59,9 @@ public abstract class MatchImpl implements Match {
     protected UUID id = UUID.randomUUID();
     protected List<MatchPlayer> players = new ArrayList<>();
     protected List<Game> games = new ArrayList<>();
+    protected List<GameInfo> gamesInfo = new ArrayList<>();
+    protected UUID tableId;
+
     protected MatchOptions options;
 
     protected TableEventSource tableEventSource = new TableEventSource();
@@ -259,6 +269,82 @@ public abstract class MatchImpl implements Match {
         }
         checkIfMatchEnds();
         game.fireGameEndInfo();
+        gamesInfo.add(createGameInfo(game));
+    }
+
+    @Override
+    public GameInfo createGameInfo(Game game) {
+        StringBuilder playersInfo = new StringBuilder();
+        int counter = 0;
+
+        Player currentPlayer = null;
+        PlayerList playerList =  game.getPlayerList();
+        if (game.getStartingPlayerId() != null) {
+            playerList.setCurrent(game.getStartingPlayerId());
+            currentPlayer = game.getPlayer(game.getStartingPlayerId());
+        }
+        if (currentPlayer == null) {
+            currentPlayer = playerList.getCurrent(game);
+        }
+        if (currentPlayer != null) {
+            do {
+                if (counter > 0) {
+                    playersInfo.append(" - ");
+                }
+                playersInfo.append(currentPlayer.getName());
+                counter++;
+                currentPlayer = game.getPlayer(playerList.getNext());
+                if (counter > 10) {
+                    logger.error("Can't get no correct player info from game");
+                    logger.debug("- matchId: " + this.getId());
+                    logger.debug("- gameId: " + game.getId());
+                    StringBuilder sb = new StringBuilder();
+                    for (MatchPlayer matchPlayer:this.getPlayers()) {
+                        sb.append(matchPlayer.getName()).append(" - " );
+                    }
+                    logger.debug("- players: " + sb.toString());
+                    break;
+                }
+            } while(!currentPlayer.getId().equals(game.getStartingPlayerId()));
+        } else {
+            playersInfo.append("[got no players]");
+        }
+
+        String state;
+        String result;
+        String duelingTime = "";
+        if (game.hasEnded()) {
+            if (game.getEndTime() != null) {
+                duelingTime = " (" + DateFormat.getDuration((game.getEndTime().getTime() - game.getStartTime().getTime())/1000) + ")";
+            }
+            state = "Finished" + duelingTime;
+            result = game.getWinner();
+        }
+        else {
+            if (game.getStartTime() != null) {
+                duelingTime = " (" + DateFormat.getDuration((new Date().getTime() - game.getStartTime().getTime())/1000) + ")";
+            }
+            state = "Dueling" + duelingTime;
+            result = "";
+        }
+        return new GameInfo(0, this.getId(), game.getId(), state, result, playersInfo.toString(), tableId);
+    }
+
+    @Override
+    public List<GameInfo> getGamesInfo() {
+        return gamesInfo;
+    }
+
+    @Override
+    public void setTableId(UUID tableId) {
+        this.tableId = tableId;
+    }
+
+    @Override
+    public void setTournamentRound(int round) {
+        for (GameInfo gameInfo: gamesInfo) {
+            gameInfo.setRoundNum(round);
+        }
     }
 
     @Override
@@ -394,13 +480,11 @@ public abstract class MatchImpl implements Match {
     }
 
     @Override
-    public void cleanUpOnMatchEnd(boolean isSaveGameActivated) {
-        // this.tableEventSource.removeAllListener();
-        // this.tableEventSource = null;
+    public void cleanUpOnMatchEnd(boolean isSaveGameActivated, boolean isTournament) {
         for (MatchPlayer matchPlayer: players) {
             matchPlayer.cleanUpOnMatchEnd();
         }
-        if (!isSaveGameActivated || this.getGame().isSimulation()) {
+        if ((!isSaveGameActivated && !isTournament) || this.getGame().isSimulation()) {
             this.getGames().clear();
         }         
     }    
@@ -423,6 +507,5 @@ public abstract class MatchImpl implements Match {
         }
         this.getGames().clear();
     }
-
 
 }

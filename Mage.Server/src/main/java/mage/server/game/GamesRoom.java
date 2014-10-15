@@ -39,7 +39,6 @@ import mage.server.Room;
 import mage.view.MatchView;
 import mage.view.RoomUsersView;
 import mage.view.TableView;
-import mage.view.UsersView;
 
 /**
  *
@@ -50,8 +49,8 @@ public interface GamesRoom extends Room {
     List<TableView> getTables();
     List<MatchView> getFinished();
     List<RoomUsersView> getRoomUsersInfo();
-    boolean joinTable(UUID userId, UUID tableId, String name, String playerType, int skill, DeckCardLists deckList) throws MageException;
-    boolean joinTournamentTable(UUID userId, UUID tableId, String name, String playerType, int skill) throws GameException;
+    boolean joinTable(UUID userId, UUID tableId, String name, String playerType, int skill, DeckCardLists deckList, String password) throws MageException;
+    boolean joinTournamentTable(UUID userId, UUID tableId, String name, String playerType, int skill, DeckCardLists deckList, String password) throws GameException;
     TableView createTable(UUID userId, MatchOptions options);
     TableView createTournamentTable(UUID userId, TournamentOptions options);
     void removeTable(UUID userId, UUID tableId);

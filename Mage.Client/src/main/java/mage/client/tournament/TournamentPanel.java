@@ -110,7 +110,7 @@ public class TournamentPanel extends javax.swing.JPanel {
 //                    logger.info("Replaying game " + gameId);
 //                    session.replayGame(gameId);
 //                }
-                if (state.equals("Dueling") && actionText.equals("Watch")) {
+                if (state.startsWith("Dueling") && actionText.equals("Watch")) {
                     logger.info("Watching game " + gameId);
                     session.watchTournamentTable(tableId);
                 }
@@ -213,18 +213,19 @@ public class TournamentPanel extends javax.swing.JPanel {
         }
         switch (tournament.getTournamentState()) {
             case "Constructing":
-                String constructionTime = "";
+                String timeLeft = "";
                 if (tournament.getStepStartTime() != null) {
-                    constructionTime = Format.getDuration(tournament.getConstructionTime() - (tournament.getServerTime().getTime() - tournament.getStepStartTime().getTime())/1000);
+                    timeLeft = Format.getDuration(tournament.getConstructionTime() - (tournament.getServerTime().getTime() - tournament.getStepStartTime().getTime())/1000);
                 }
-                txtTournamentState.setText(new StringBuilder(tournament.getTournamentState()).append(" (").append(constructionTime).append(")").toString());
+                txtTournamentState.setText(new StringBuilder(tournament.getTournamentState()).append(" (").append(timeLeft).append(")").toString());
                 break;
             case "Dueling":
-                String duelingTime = "";
+            case "Drafting":
+                String usedTime = "";
                 if (tournament.getStepStartTime() != null) {
-                    duelingTime = Format.getDuration((tournament.getServerTime().getTime() - tournament.getStepStartTime().getTime())/1000);
+                    usedTime = Format.getDuration((tournament.getServerTime().getTime() - tournament.getStepStartTime().getTime())/1000);
                 }
-                txtTournamentState.setText(new StringBuilder(tournament.getTournamentState()).append(" (").append(duelingTime).append(")").toString());
+                txtTournamentState.setText(tournament.getTournamentState() + " (" + usedTime + ") " + tournament.getRunningInfo());
                 break;
             default:
                 txtTournamentState.setText(tournament.getTournamentState());
@@ -634,7 +635,7 @@ class TournamentMatchesTableModel extends AbstractTableModel {
 //                if (games[arg0].getState().equals("Finished")) {
 //                    return "Replay";
 //                }
-                if (watchingAllowed && games[arg0].getState().equals("Dueling")) {
+                if (watchingAllowed && games[arg0].getState().startsWith("Dueling")) {
                     return "Watch";
                 }
                 return "";

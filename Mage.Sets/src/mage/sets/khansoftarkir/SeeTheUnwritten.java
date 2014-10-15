@@ -62,15 +62,13 @@ public class SeeTheUnwritten extends CardImpl {
         this.color.setGreen(true);
 
         // Reveal the top eight cards of your library. You may put a creature card from among them onto the battlefield. Put the rest into your graveyard.
-        this.getSpellAbility().addEffect(new ConditionalOneShotEffect(
-                new SeeTheUnwrittenEffect(1),
-                new InvertCondition(FerociousCondition.getInstance()),
-                "Reveal the top eight cards of your library. You may put a creature card from among them onto the battlefield. Put the rest into your graveyard"));
         // <i>Ferocious</i> - If you control a creature with power 4 or greater, you may put two creature cards onto the battlefield instead of one.
         this.getSpellAbility().addEffect(new ConditionalOneShotEffect(
+                new SeeTheUnwrittenEffect(1),
                 new SeeTheUnwrittenEffect(2), 
-                FerociousCondition.getInstance(),
-                "<br/><br/><i>Ferocious</i> - If you control a creature with power 4 or greater, you may put two creature cards onto the battlefield instead of one"));
+                new InvertCondition(FerociousCondition.getInstance()),
+                "Reveal the top eight cards of your library. You may put a creature card from among them onto the battlefield. Put the rest into your graveyard" +
+                 "<br/><br/><i>Ferocious</i> - If you control a creature with power 4 or greater, you may put two creature cards onto the battlefield instead of one"       ));
     }
 
     public SeeTheUnwritten(final SeeTheUnwritten card) {
@@ -92,7 +90,9 @@ class SeeTheUnwrittenEffect extends OneShotEffect {
     public SeeTheUnwrittenEffect(int numberOfCardsToPutIntoPlay) {
         super(Outcome.DrawCard);
         this.numberOfCardsToPutIntoPlay = numberOfCardsToPutIntoPlay;
-        this.staticText = "Reveal the top eight cards of your library. You may put a creature card from among them onto the battlefield. Put the rest into your graveyard";
+        this.staticText = "Reveal the top eight cards of your library. You may put " +
+                (numberOfCardsToPutIntoPlay == 1 ? "a creature card":"two creature cards") +
+                " from among them onto the battlefield. Put the rest into your graveyard";
     }
 
     public SeeTheUnwrittenEffect(final SeeTheUnwrittenEffect effect) {
@@ -112,32 +112,34 @@ class SeeTheUnwrittenEffect extends OneShotEffect {
         if (player != null && sourceObject != null) {
             Cards cards = new CardsImpl(Zone.LIBRARY);
 
-            boolean properCardFound = false;
+            int creatureCardsFound = 0;
             int count = Math.min(player.getLibrary().size(), 8);
             for (int i = 0; i < count; i++) {
                 Card card = player.getLibrary().removeFromTop(game);
                 if (card != null) {
                     cards.add(card);
                     if (filter.match(card, source.getSourceId(), source.getControllerId(), game)) {
-                        properCardFound = true;
+                        creatureCardsFound++;
                     }
                 }
             }
 
             if (!cards.isEmpty()) {
                 player.revealCards(sourceObject.getLogName(), cards, game);
-                TargetCard target = new TargetCard(numberOfCardsToPutIntoPlay, numberOfCardsToPutIntoPlay, Zone.LIBRARY, filter);
-                if (properCardFound && player.choose(Outcome.PutCreatureInPlay, cards, target, game)) {
-                    for(UUID creatureId: target.getTargets()) {
-                        Card card = game.getCard(creatureId);
-                        if (card != null) {
-                            cards.remove(card);
-                            player.putOntoBattlefieldWithInfo(card, game, Zone.LIBRARY, source.getSourceId());
+                if (creatureCardsFound > 0 && player.chooseUse(outcome, "Put creature(s) into play?", game)) {
+                    int cardsToChoose = Math.min(numberOfCardsToPutIntoPlay, creatureCardsFound); 
+                    TargetCard target = new TargetCard(cardsToChoose, cardsToChoose, Zone.LIBRARY, filter);
+                    if (player.choose(Outcome.PutCreatureInPlay, cards, target, game)) {
+                        for(UUID creatureId: target.getTargets()) {
+                            Card card = game.getCard(creatureId);
+                            if (card != null) {
+                                cards.remove(card);
+                                player.putOntoBattlefieldWithInfo(card, game, Zone.LIBRARY, source.getSourceId());
+                            }
                         }
+
                     }
-
                 }
-
                 for (UUID cardId : cards) {
                     Card card = game.getCard(cardId);
                     if (card != null) {
@@ -149,4 +151,5 @@ class SeeTheUnwrittenEffect extends OneShotEffect {
         }
         return false;
     }
+    
 }

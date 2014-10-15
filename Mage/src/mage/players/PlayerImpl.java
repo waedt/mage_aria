@@ -158,6 +158,8 @@ public abstract class PlayerImpl implements Player, Serializable {
     protected boolean passed; // player passed priority
     protected boolean passedTurn; // F4
     protected boolean passedUntilEndOfTurn; // F5
+    protected boolean passedUntilNextMain; // F6
+    protected boolean skippedAtLeastOnce; // used to track if passed started in specific phase
     /**
      * This indicates that player passed all turns until his own turn starts (F9).
      * Note! This differs from passedTurn as it doesn't care about spells and abilities in the stack and will pass them as well.
@@ -169,7 +171,7 @@ public abstract class PlayerImpl implements Player, Serializable {
     protected int priorityTimeLeft = Integer.MAX_VALUE;
 
 
-
+    //
     // conceded or connection lost game
     protected boolean left;
     // set if the player quits the complete match
@@ -289,6 +291,8 @@ public abstract class PlayerImpl implements Player, Serializable {
         
         this.passedTurn = player.passedTurn;
         this.passedUntilEndOfTurn = player.passedUntilEndOfTurn;
+        this.passedUntilNextMain = player.passedUntilNextMain;
+        this.skippedAtLeastOnce = player.skippedAtLeastOnce;
         this.passedAllTurns = player.passedAllTurns;
         
         this.priorityTimeLeft = player.getPriorityTimeLeft();
@@ -398,6 +402,8 @@ public abstract class PlayerImpl implements Player, Serializable {
         this.passed = false;
         this.passedTurn = false;
         this.passedUntilEndOfTurn = false;
+        this.passedUntilNextMain = false;
+        this.skippedAtLeastOnce = false;
         this.passedAllTurns = false;
         this.canGainLife = true;
         this.canLoseLife = true;
@@ -545,9 +551,6 @@ public abstract class PlayerImpl implements Player, Serializable {
     @Override
     public void endOfTurn(Game game) {
         this.passedTurn = false;
-        if (!game.getActivePlayerId().equals(playerId)) {
-            this.passedUntilEndOfTurn = false;
-        }
     }
 
     @Override
@@ -731,12 +734,18 @@ public abstract class PlayerImpl implements Player, Serializable {
 
     @Override
     public boolean removeFromBattlefield(Permanent permanent, Game game) {
-        permanent.removeFromCombat(game);
+        permanent.removeFromCombat(game, false);
         game.getBattlefield().removePermanent(permanent.getId());
         if (permanent.getAttachedTo() != null) {
             Permanent attachedTo = game.getPermanent(permanent.getAttachedTo());
             if (attachedTo != null) {
                 attachedTo.removeAttachment(permanent.getId(), game);
+            }
+        }
+        if (permanent.getPairedCard() != null) {
+            Permanent pairedCard = game.getPermanent(permanent.getPairedCard());
+            if (pairedCard != null) {
+                pairedCard.clearPairedCard();
             }
         }
         return true;
@@ -828,7 +837,7 @@ public abstract class PlayerImpl implements Player, Serializable {
                     resetStoredBookmark(game);
                     return true;
                 }
-                game.restoreState(bookmark);
+                game.restoreState(bookmark, ability.getRule());
             }
         }
         return false;
@@ -872,7 +881,7 @@ public abstract class PlayerImpl implements Player, Serializable {
                     return true;
                 }
             }
-            game.restoreState(bookmark);
+            game.restoreState(bookmark, ability.getRule());
         }
         return false;
     }
@@ -891,7 +900,7 @@ public abstract class PlayerImpl implements Player, Serializable {
                     resetStoredBookmark(game);
                     return true;
                 }
-                game.restoreState(bookmark);
+                game.restoreState(bookmark, ability.getRule());
             }
         } else {
             int bookmark = game.bookmarkState();
@@ -901,7 +910,7 @@ public abstract class PlayerImpl implements Player, Serializable {
                 resetStoredBookmark(game);
                 return true;
             }
-            game.restoreState(bookmark);
+            game.restoreState(bookmark, ability.getRule());
         }
         return false;
     }
@@ -919,7 +928,7 @@ public abstract class PlayerImpl implements Player, Serializable {
                     return true;
                 }
             }
-            game.restoreState(bookmark);
+            game.restoreState(bookmark, action.getRule());
         }
         return false;
     }
@@ -979,7 +988,7 @@ public abstract class PlayerImpl implements Player, Serializable {
                 game.getStack().push(new StackAbility(ability, playerId));
             }
             if (ability.activate(game, false)) {
-                if (ability.getRuleVisible()) {
+                if (ability.isUsesStack() || ability.getRuleVisible()) {
                     game.informPlayers(ability.getGameLogMessage(game));
                 }
                 if (!ability.isUsesStack()) {
@@ -989,7 +998,7 @@ public abstract class PlayerImpl implements Player, Serializable {
                 return true;
             }
         }
-        game.restoreState(bookmark);
+        game.restoreState(bookmark, source.getRule());
         return false;
     }
 
@@ -1599,59 +1608,73 @@ public abstract class PlayerImpl implements Player, Serializable {
 
     @Override
     public void quit(Game game) {
-        logger.debug(getName() + " quits the match.");
-        game.informPlayers(getName() + " quits the match.");
         quit = true;
         this.concede(game);
+        logger.debug(getName() + " quits the match.");
+        game.informPlayers(getName() + " quits the match.");
     }
 
     @Override
     public void timerTimeout(Game game) {
-        game.informPlayers(getName() + " has run out of time. Loosing the Match.");
         quit = true;
         timerTimeout = true;
         this.concede(game);
+        game.informPlayers(getName() + " has run out of time. Loosing the Match.");        
     }
 
     @Override
     public void idleTimeout(Game game) {
-        game.informPlayers(new StringBuilder(getName()).append(" was idle for too long. Loosing the Match.").toString());
         quit = true;
         idleTimeout = true;
         this.concede(game);
+        game.informPlayers(new StringBuilder(getName()).append(" was idle for too long. Loosing the Match.").toString());        
     }
 
     @Override
-    public void concede(Game game) {        
-        logger.debug(this.getName() + (" concedes gameId:" +game.getId()));
+    public void concede(Game game) {
         game.gameOver(playerId);
-        logger.debug("Before lost " + this.getName());
         lost(game);
-        logger.debug("After lost " + this.getName());
         this.left = true;
     }
 
     @Override
     public void sendPlayerAction(PlayerAction passPriorityAction, Game game) {
         switch(passPriorityAction) {
-            case PASS_PRIORITY_UNTIL_MY_NEXT_TURN:
-                passedTurn = true;
+            case PASS_PRIORITY_UNTIL_MY_NEXT_TURN: // F9
+                passedUntilNextMain = false;
+                passedUntilEndOfTurn = false;
+                passedTurn = false;
                 passedAllTurns = true;
                 this.skip();                
                 break;
-            case PASS_PRIORITY_UNTIL_OPPONENTS_TURN_END_STEP:
+            case PASS_PRIORITY_UNTIL_TURN_END_STEP: // F5
+                passedUntilNextMain = false;
+                passedTurn = false;
+                passedAllTurns = false;
                 passedUntilEndOfTurn = true;
+                skippedAtLeastOnce = !game.getTurn().getStepType().equals(PhaseStep.END_TURN);
                 this.skip();
                 break;
-            case PASS_PRIORITY_UNTIL_NEXT_TURN:
+            case PASS_PRIORITY_UNTIL_NEXT_TURN: // F4
+                passedUntilNextMain = false;
+                passedAllTurns = false;
+                passedUntilEndOfTurn = false;
                 passedTurn = true;
+                this.skip();
+                break;
+            case PASS_PRIORITY_UNTIL_NEXT_MAIN_PHASE: //F7
+                passedAllTurns = false;
+                passedTurn = false;
+                passedUntilEndOfTurn = false;
+                passedUntilNextMain = true;
+                skippedAtLeastOnce = !(game.getTurn().getStepType().equals(PhaseStep.POSTCOMBAT_MAIN) || game.getTurn().getStepType().equals(PhaseStep.PRECOMBAT_MAIN));
                 this.skip();
                 break;
             case PASS_PRIORITY_CANCEL_ALL_ACTIONS:
                 passedAllTurns = false;
                 passedTurn = false;
-                passedUntilEndOfTurn = false;                
-                break;
+                passedUntilEndOfTurn = false;
+                passedUntilNextMain = false;
         }
         logger.trace("PASS Priority: " + passPriorityAction.toString());
     }
@@ -1681,7 +1704,7 @@ public abstract class PlayerImpl implements Player, Serializable {
             if (!this.wins) {
                 this.loses = true;
                 game.fireEvent(GameEvent.getEvent(GameEvent.EventType.LOST, null, null, playerId));
-                game.informPlayers(new StringBuilder(this.getName()).append(" has lost the game.").toString());
+                game.informPlayers(this.getName()+ " has lost the game.");
             } else {
                 logger.debug(this.getName() + " has already won - stop lost");
             }
@@ -1738,7 +1761,7 @@ public abstract class PlayerImpl implements Player, Serializable {
     }
     @Override
     public boolean isInGame() {
-        return !hasLost() && !hasWon() && !hasLeft();
+        return !hasQuit() && !hasLost() && !hasWon() && !hasLeft();
     }
 
     @Override
@@ -2021,8 +2044,8 @@ public abstract class PlayerImpl implements Player, Serializable {
 
             if (hidden) {
                 for (Card card : hand.getUniqueCards(game)) {
-                    for (Ability ability : card.getAbilities()) {
-                        if (ability instanceof ActivatedAbility) {
+                    for (Ability ability : card.getAbilities().getPlayableAbilities(Zone.HAND)) { // gets this activated ability from hand? (Morph?)
+                        if (ability instanceof ActivatedAbility) { 
                             if (ability instanceof PlayLandAbility) {
                                 if (game.getContinuousEffects().preventedByRuleModification(GameEvent.getEvent(GameEvent.EventType.PLAY_LAND, ability.getSourceId(), ability.getSourceId(), playerId), ability, game, true)) {
                                     break;
@@ -2032,9 +2055,9 @@ public abstract class PlayerImpl implements Player, Serializable {
                                 playable.add(ability);
                             }
                         }
-                        if (ability instanceof AlternativeSourceCosts) {
-                            
-                        }
+//                        if (ability instanceof AlternativeSourceCosts) {
+//
+//                        }
                     }
                 }
             }

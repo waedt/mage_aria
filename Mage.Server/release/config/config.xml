@@ -1,7 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../Config.xsd">
-    <server serverAddress="0.0.0.0" serverName="mage-server" port="17171" 
+    <server serverAddress="0.0.0.0" 
+            serverName="mage-server" 
+            port="17171" 
+            secondaryBindPort="-1" 
+            backlogSize="200" 
+            numAcceptThreads="2" 
+            maxPoolSize="300" 
+            leasePeriod="5000" 
             maxGameThreads="10"
             maxSecondsIdle="600"
             minUserNameLength="3"
@@ -22,6 +29,8 @@
         <gameType name="Commander Free For All" jar="mage-game-commanderfreeforall-${project.version}.jar" className="mage.game.CommanderFreeForAllMatch" typeName="mage.game.CommanderFreeForAllType"/>
     </gameTypes>
     <tournamentTypes>
+        <tournamentType name="Constructed Elimination" jar="mage-tournament-constructed-${project.version}.jar" className="mage.tournament.ConstructedEliminationTournament" typeName="mage.tournament.ConstructedEliminationTournamentType"/>
+        <tournamentType name="Constructed Swiss" jar="mage-tournament-constructed-${project.version}.jar" className="mage.tournament.ConstructedSwissTournament" typeName="mage.tournament.ConstructedSwissTournamentType"/>
         <tournamentType name="Booster Draft Elimination" jar="mage-tournament-boosterdraft-${project.version}.jar" className="mage.tournament.BoosterDraftEliminationTournament" typeName="mage.tournament.BoosterDraftEliminationTournamentType"/>
         <tournamentType name="Booster Draft Elimination (Cube)" jar="mage-tournament-boosterdraft-${project.version}.jar" className="mage.tournament.BoosterDraftEliminationTournament" typeName="mage.tournament.BoosterDraftEliminationCubeTournamentType"/>
         <tournamentType name="Booster Draft Swiss" jar="mage-tournament-boosterdraft-${project.version}.jar" className="mage.tournament.BoosterDraftSwissTournament" typeName="mage.tournament.BoosterDraftSwissTournamentType"/>

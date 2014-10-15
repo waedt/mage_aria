@@ -63,8 +63,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import mage.abilities.mana.ManaAbility;
+import mage.cards.Card;
 import mage.constants.Zone;
 import mage.target.TargetSource;
+import mage.target.common.TargetCardInHand;
 
 /**
  *
@@ -154,8 +157,18 @@ public class TestPlayer extends ComputerPlayer {
                                 actions.remove(action);
                                 return true;
                             }                            
-                        }
-                        
+                        }                        
+                    }
+                    List<Permanent> manaPermsWithCost = this.getAvailableManaProducersWithCost(game);
+                    for (Permanent perm: manaPermsWithCost) {
+                        for (ManaAbility manaAbility: perm.getAbilities().getAvailableManaAbilities(Zone.BATTLEFIELD, game)) {
+                            if (manaAbility.toString().startsWith(groups[0]) && manaAbility.canActivate(playerId, game)) {                                
+                                Ability newManaAbility = manaAbility.copy();                                
+                                this.activateAbility((ActivatedAbility)newManaAbility, game);
+                                actions.remove(action);
+                                return true;
+                            }                            
+                        }                     
                     }
                 } else 
                 
@@ -384,6 +397,29 @@ public class TestPlayer extends ComputerPlayer {
                 }
                 
             }
+            if (target instanceof TargetCardInHand) {
+                for (String targetDefinition: targets) {
+                    String[] targetList = targetDefinition.split("\\^");
+                    boolean targetFound = false;
+                    for (String targetName: targetList) {
+                        for (Card card: this.getHand().getCards(((TargetCardInHand)target).getFilter(), game)) {
+                            if (card.getName().equals(targetName) || (card.getName()+"-"+card.getExpansionSetCode()).equals(targetName)) {
+                                if (((TargetCardInHand)target).canTarget(source.getControllerId(), card.getId(), source, game) && !target.getTargets().contains(card.getId())) {
+                                    target.add(card.getId(), game);
+                                    targetFound = true;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    if (targetFound) {
+                        targets.remove(targetDefinition);
+                        return true;
+                    }
+                }
+
+            }
+
         }
         return super.chooseTarget(outcome, target, source, game);
     }
