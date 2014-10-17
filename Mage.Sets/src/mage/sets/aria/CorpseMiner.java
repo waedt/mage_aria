@@ -1,9 +1,10 @@
-// TODO: Finish me!
-
 package mage.sets.aria;
 
 import java.util.UUID;
+
 import mage.MageInt;
+import mage.abilities.common.EntersBattlefieldTriggeredAbility;
+import mage.abilities.effects.common.PutTopCardOfLibraryIntoGraveControllerEffect;
 import mage.cards.CardImpl;
 import mage.constants.CardType;
 import mage.constants.Rarity;
@@ -19,6 +20,10 @@ public class CorpseMiner extends CardImpl {
         this.power = new MageInt(5);
         this.toughness = new MageInt(3);
         this.color.setBlack(true);
+
+        // TODO: Does the exact wording matter here?
+        // When Corpse Miner enters the battlefield, you mill 5. (Put the top five cards of your library into your graveyard.)
+        this.addAbility(new EntersBattlefieldTriggeredAbility(new PutTopCardOfLibraryIntoGraveControllerEffect(5)));
 
         /*
         Card Text:
