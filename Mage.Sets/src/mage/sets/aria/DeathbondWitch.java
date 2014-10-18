@@ -11,7 +11,7 @@ import mage.constants.Rarity;
 public class DeathbondWitch extends CardImpl {
 
     public DeathbondWitch(UUID ownerId) {
-        super(ownerId, 94, "Deathbond Witch", Rarity.COMMON, new CardType[]{CardType.CREATURE}, "{2}{B}");
+        super(ownerId, 94, "Deathbond Witch", Rarity.RARE, new CardType[]{CardType.CREATURE}, "{2}{B}");
         this.expansionSetCode = "ARI";
 
         this.subtype.add("Dwarf");

@@ -1,9 +1,9 @@
-// TODO: Finish me!
-
 package mage.sets.aria;
 
 import java.util.UUID;
-import mage.MageInt;
+
+import mage.abilities.effects.common.discard.DiscardTargetEffect;
+import mage.abilities.keyword.StormAbility;
 import mage.cards.CardImpl;
 import mage.constants.CardType;
 import mage.constants.Rarity;
@@ -15,6 +15,11 @@ public class DeathofReason extends CardImpl {
         this.expansionSetCode = "ARI";
 
         this.color.setBlack(true);
+
+        // Target player discards a card.
+        this.getSpellAbility().addEffect(new DiscardTargetEffect(1));
+
+        this.addAbility(new StormAbility());
 
         /*
         Card Text:

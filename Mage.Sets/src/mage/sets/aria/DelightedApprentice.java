@@ -1,12 +1,15 @@
-// TODO: Finish me!
-
 package mage.sets.aria;
 
 import java.util.UUID;
+
 import mage.MageInt;
+import mage.abilities.Ability;
+import mage.abilities.common.AttacksTriggeredAbility;
+import mage.abilities.effects.common.DamageTargetEffect;
 import mage.cards.CardImpl;
 import mage.constants.CardType;
 import mage.constants.Rarity;
+import mage.target.common.TargetCreatureOrPlayer;
 
 public class DelightedApprentice extends CardImpl {
 
@@ -19,6 +22,10 @@ public class DelightedApprentice extends CardImpl {
         this.power = new MageInt(1);
         this.toughness = new MageInt(1);
         this.color.setRed(true);
+
+        Ability ability = new AttacksTriggeredAbility(new DamageTargetEffect(1), false);
+        ability.addTarget(new TargetCreatureOrPlayer());
+        this.addAbility(ability);
 
         /*
         Card Text:
