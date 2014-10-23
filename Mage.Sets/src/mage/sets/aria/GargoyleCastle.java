@@ -1,25 +1,20 @@
-// TODO: Finish me!
-
 package mage.sets.aria;
 
 import java.util.UUID;
-import mage.MageInt;
-import mage.cards.CardImpl;
-import mage.constants.CardType;
-import mage.constants.Rarity;
 
-public class GargoyleCastle extends CardImpl {
+public class GargoyleCastle extends mage.sets.magic2010.GargoyleCastle {
 
     public GargoyleCastle(UUID ownerId) {
-        super(ownerId, 220, "Gargoyle Castle", Rarity.COMMON, new CardType[]{CardType.LAND}, "");
+        super(ownerId);
+        this.cardNumber = 220;
         this.expansionSetCode = "ARI";
 
-        
+        // TODO: Is the rarity the same as in M10?
 
         /*
         Card Text:
         ----------
-        http://i.imgur.com/xyy3Zue.jpg
+        http://41.media.tumblr.com/5acd5857b059ab0892ea7d50498b991f/tumblr_n60d97vGVL1tcy430o8_400.png
         T: Add 1 to your mana pool.
         5, T, Sacrifice Gargoyle Castle: Put a 3/4 colorless Gargoyle artifact creature token with flying onto the battlefield.
         */

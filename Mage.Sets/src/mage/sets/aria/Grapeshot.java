@@ -1,20 +1,13 @@
-// TODO: Finish me!
-
 package mage.sets.aria;
 
 import java.util.UUID;
-import mage.MageInt;
-import mage.cards.CardImpl;
-import mage.constants.CardType;
-import mage.constants.Rarity;
 
-public class Grapeshot extends CardImpl {
+public class Grapeshot extends mage.sets.timespiral.Grapeshot {
 
     public Grapeshot(UUID ownerId) {
-        super(ownerId, 136, "Grapeshot", Rarity.COMMON, new CardType[]{CardType.SORCERY}, "{1}{R}");
+        super(ownerId);
+        this.cardNumber = 136;
         this.expansionSetCode = "ARI";
-
-        this.color.setRed(true);
 
         /*
         Card Text:

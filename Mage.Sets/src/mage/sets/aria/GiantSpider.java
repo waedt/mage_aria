@@ -1,28 +1,20 @@
-// TODO: Finish me!
-
 package mage.sets.aria;
 
 import java.util.UUID;
-import mage.MageInt;
-import mage.cards.CardImpl;
-import mage.constants.CardType;
 import mage.constants.Rarity;
 
-public class GiantSpider extends CardImpl {
+public class GiantSpider extends mage.sets.tenth.GiantSpider {
 
     public GiantSpider(UUID ownerId) {
-        super(ownerId, 178, "Giant Spider", Rarity.COMMON, new CardType[]{CardType.CREATURE}, "{3}{G}");
+        super(ownerId);
+        this.rarity = Rarity.COMMON;
+        this.cardNumber = 178;
         this.expansionSetCode = "ARI";
-
-        this.subtype.add("Spider");
-        this.power = new MageInt(2);
-        this.toughness = new MageInt(4);
-        this.color.setGreen(true);
 
         /*
         Card Text:
         ----------
-        http://i.imgur.com/172cMdC.jpg
+        http://40.media.tumblr.com/c8db3ea87049ff6d3144f7f5cb68564b/tumblr_n60cyqd6y41tcy430o7_400.png
         Reach
         */
     }

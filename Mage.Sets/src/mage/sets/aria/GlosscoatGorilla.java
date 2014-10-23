@@ -1,9 +1,9 @@
-// TODO: Finish me!
-
 package mage.sets.aria;
 
 import java.util.UUID;
+
 import mage.MageInt;
+import mage.abilities.keyword.ShroudAbility;
 import mage.cards.CardImpl;
 import mage.constants.CardType;
 import mage.constants.Rarity;
@@ -11,13 +11,15 @@ import mage.constants.Rarity;
 public class GlosscoatGorilla extends CardImpl {
 
     public GlosscoatGorilla(UUID ownerId) {
-        super(ownerId, 179, "Glosscoat Gorilla", Rarity.COMMON, new CardType[]{CardType.CREATURE}, "{3}{G}{G}");
+        super(ownerId, 179, "Glosscoat Gorilla", Rarity.UNCOMMON, new CardType[]{CardType.CREATURE}, "{3}{G}{G}");
         this.expansionSetCode = "ARI";
 
         this.subtype.add("Ape");
         this.power = new MageInt(5);
         this.toughness = new MageInt(5);
         this.color.setGreen(true);
+
+        this.addAbility(ShroudAbility.getInstance());
 
         /*
         Card Text:
