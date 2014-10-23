@@ -1,9 +1,9 @@
-// TODO: Finish me!
-
 package mage.sets.aria;
 
 import java.util.UUID;
+
 import mage.MageInt;
+import mage.abilities.keyword.FlyingAbility;
 import mage.cards.CardImpl;
 import mage.constants.CardType;
 import mage.constants.Rarity;
@@ -18,6 +18,8 @@ public class ForestDrake extends CardImpl {
         this.power = new MageInt(2);
         this.toughness = new MageInt(2);
         this.color.setGreen(true);
+
+        this.addAbility(FlyingAbility.getInstance());
 
         /*
         Card Text:

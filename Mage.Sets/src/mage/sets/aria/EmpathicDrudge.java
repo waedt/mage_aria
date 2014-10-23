@@ -37,6 +37,7 @@ public class EmpathicDrudge extends CardImpl {
         // G: Regenerate Empathic Drudge.
         this.addAbility(new SimpleActivatedAbility(Zone.BATTLEFIELD, new RegenerateSourceEffect(), new ManaCostsImpl("{G}")));
 
+        // Green spells you cast cost G less to cast. This effect reduces only the amount of colored mana you pay.
         this.addAbility(new SimpleStaticAbility(Zone.BATTLEFIELD, new SpellsCostReductionControllerEffect(filter, new ManaCostsImpl("{G}"))));
 
         /*

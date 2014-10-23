@@ -1,9 +1,10 @@
-// TODO: Finish me!
-
 package mage.sets.aria;
 
 import java.util.UUID;
-import mage.MageInt;
+
+import mage.Mana;
+import mage.abilities.effects.common.AddManaToManaPoolEffect;
+import mage.abilities.effects.common.DrawCardSourceControllerEffect;
 import mage.cards.CardImpl;
 import mage.constants.CardType;
 import mage.constants.Rarity;
@@ -15,6 +16,12 @@ public class Firefright extends CardImpl {
         this.expansionSetCode = "ARI";
 
         this.color.setRed(true);
+
+        // Add R to your mana pool.
+        this.getSpellAbility().addEffect(new AddManaToManaPoolEffect(Mana.RedMana, "your"));
+
+        // Draw a card.
+        this.getSpellAbility().addEffect(new DrawCardSourceControllerEffect(1));
 
         /*
         Card Text:
