@@ -25,7 +25,7 @@ public class ImpressiveVista extends CardImpl {
     }
 
     public ImpressiveVista(UUID ownerId) {
-        super(ownerId, 138, "Impressive Vista", Rarity.COMMON, new CardType[]{CardType.SORCERY}, "{4}{R}");
+        super(ownerId, 138, "Impressive Vista", Rarity.RARE, new CardType[]{CardType.SORCERY}, "{4}{R}");
         this.expansionSetCode = "ARI";
 
         this.color.setRed(true);
