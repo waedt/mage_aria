@@ -1,24 +1,13 @@
-// TODO: Finish me!
-
 package mage.sets.aria;
 
 import java.util.UUID;
-import mage.MageInt;
-import mage.cards.CardImpl;
-import mage.constants.CardType;
-import mage.constants.Rarity;
 
-public class HaplessResearcher extends CardImpl {
+public class HaplessResearcher extends mage.sets.judgment.HaplessResearcher {
 
     public HaplessResearcher(UUID ownerId) {
-        super(ownerId, 54, "Hapless Researcher", Rarity.COMMON, new CardType[]{CardType.CREATURE}, "{U}");
+        super(ownerId);
+        this.cardNumber = 54;
         this.expansionSetCode = "ARI";
-
-        this.subtype.add("Human");
-        this.subtype.add("Wizard");
-        this.power = new MageInt(1);
-        this.toughness = new MageInt(1);
-        this.color.setBlue(true);
 
         /*
         Card Text:
