@@ -6,6 +6,7 @@ import mage.MageInt;
 import mage.abilities.Ability;
 import mage.abilities.common.SimpleActivatedAbility;
 import mage.abilities.common.SpellCastAllTriggeredAbility;
+import mage.abilities.condition.Condition.ComparisonType;
 import mage.abilities.condition.common.SpellsCastThisTurnCondition;
 import mage.abilities.costs.common.TapSourceCost;
 import mage.abilities.decorator.ConditionalTriggeredAbility;
@@ -36,9 +37,7 @@ public class Gleamshaper extends CardImpl {
         this.addAbility(ability);
 
         // Whenever the second spell of a turn is cast, untap Gleamshaper.
-        // XXX The 1 below is not a typo. The trigger goes off before the count
-        //     for the condition is incremented.
-        this.addAbility(new ConditionalTriggeredAbility(new SpellCastAllTriggeredAbility(new UntapSourceEffect(), false), new SpellsCastThisTurnCondition(new FilterSpell(), 1), "Whenever the second spell of a turn is cast, untap Gleamshaper."));
+        this.addAbility(new ConditionalTriggeredAbility(new SpellCastAllTriggeredAbility(new UntapSourceEffect(), false), new SpellsCastThisTurnCondition(new FilterSpell(), ComparisonType.Equal, 2), "Whenever the second spell of a turn is cast, untap Gleamshaper."));
 
         /*
         Card Text:
