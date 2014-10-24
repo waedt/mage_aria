@@ -92,6 +92,7 @@ public class DoIfCostPaid extends OneShotEffect {
         StringBuilder sb = new StringBuilder();
         String costText = cost.getText();
         if (costText != null
+                && !costText.toLowerCase().startsWith("tap")
                 && !costText.toLowerCase().startsWith("discard")
                 && !costText.toLowerCase().startsWith("sacrifice")
                 && !costText.toLowerCase().startsWith("remove")
