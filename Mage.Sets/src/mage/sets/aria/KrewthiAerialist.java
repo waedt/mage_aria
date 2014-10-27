@@ -1,5 +1,3 @@
-// TODO: Finish me!
-
 package mage.sets.aria;
 
 import java.util.UUID;

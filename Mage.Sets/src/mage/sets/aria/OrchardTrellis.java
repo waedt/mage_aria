@@ -1,9 +1,10 @@
-// TODO: Finish me!
-
 package mage.sets.aria;
 
 import java.util.UUID;
+
 import mage.MageInt;
+import mage.abilities.common.EntersBattlefieldOrDiesSourceTriggeredAbility;
+import mage.abilities.effects.common.GainLifeEffect;
 import mage.cards.CardImpl;
 import mage.constants.CardType;
 import mage.constants.Rarity;
@@ -19,6 +20,9 @@ public class OrchardTrellis extends CardImpl {
         this.power = new MageInt(0);
         this.toughness = new MageInt(3);
         this.color.setWhite(true);
+
+        // When Orchard Trellis enters the battlefield or dies, you gain 3 life.
+        this.addAbility(new EntersBattlefieldOrDiesSourceTriggeredAbility(new GainLifeEffect(3), false));
 
         /*
         Card Text:
