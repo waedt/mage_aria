@@ -68,7 +68,8 @@ class LostStoneOfAccoEffect extends OneShotEffect {
         Player controller = game.getPlayer(source.getControllerId());
         if(controller != null && controller.getLibrary().size() > 0) {
             Card card = controller.getLibrary().removeFromBottom(game);
-            controller.putInHand(card, game);
+            //ucontroller.putInHand(card, game);
+            card.moveToZone(Zone.HAND, source.getSourceId(), game, false);
         }
 
         Permanent permanent = game.getPermanent(source.getSourceId());

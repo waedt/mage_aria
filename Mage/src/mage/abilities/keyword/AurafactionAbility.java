@@ -58,7 +58,7 @@ class AurafactionEffect extends ReplacementEffectImpl {
         Card card = game.getCard(source.getSourceId());
         Player controller = game.getPlayer(source.getControllerId());
 
-        card.moveToZone(Zone.HAND, null, game, false);
+        card.moveToZone(Zone.HAND, source.getSourceId(), game, false);
 
         game.informPlayers(new StringBuilder(controller.getName())
                                      .append(" used Aurafaciton to return ")
