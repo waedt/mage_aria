@@ -1,9 +1,9 @@
-// TODO: Finish me!
-
 package mage.sets.aria;
 
 import java.util.UUID;
-import mage.MageInt;
+
+import mage.abilities.effects.common.GainLifeEffect;
+import mage.abilities.keyword.StormAbility;
 import mage.cards.CardImpl;
 import mage.constants.CardType;
 import mage.constants.Rarity;
@@ -15,6 +15,12 @@ public class MercyOverflowing extends CardImpl {
         this.expansionSetCode = "ARI";
 
         this.color.setWhite(true);
+
+        // Gain 2 life.
+        this.getSpellAbility().addEffect(new GainLifeEffect(2));
+
+        // Storm
+        this.addAbility(new StormAbility());
 
         /*
         Card Text:

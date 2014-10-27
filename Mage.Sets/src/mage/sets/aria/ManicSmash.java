@@ -1,12 +1,13 @@
-// TODO: Finish me!
-
 package mage.sets.aria;
 
 import java.util.UUID;
-import mage.MageInt;
+
+import mage.abilities.effects.common.DestroyTargetEffect;
+import mage.abilities.effects.common.DrawCardSourceControllerEffect;
 import mage.cards.CardImpl;
 import mage.constants.CardType;
 import mage.constants.Rarity;
+import mage.target.common.TargetArtifactPermanent;
 
 public class ManicSmash extends CardImpl {
 
@@ -15,6 +16,13 @@ public class ManicSmash extends CardImpl {
         this.expansionSetCode = "ARI";
 
         this.color.setRed(true);
+
+        // Destroy target artifact.
+        this.getSpellAbility().addEffect(new DestroyTargetEffect());
+        this.getSpellAbility().addTarget(new TargetArtifactPermanent());
+
+        // Draw a card.
+        this.getSpellAbility().addEffect(new DrawCardSourceControllerEffect(1));
 
         /*
         Card Text:

@@ -1,9 +1,9 @@
-// TODO: Finish me!
-
 package mage.sets.aria;
 
 import java.util.UUID;
+
 import mage.MageInt;
+import mage.abilities.keyword.FlyingAbility;
 import mage.cards.CardImpl;
 import mage.constants.CardType;
 import mage.constants.Rarity;
@@ -18,6 +18,9 @@ public class MerosIsleDrake extends CardImpl {
         this.power = new MageInt(1);
         this.toughness = new MageInt(3);
         this.color.setBlue(true);
+
+        // Flying
+        this.addAbility(FlyingAbility.getInstance());
 
         /*
         Card Text:

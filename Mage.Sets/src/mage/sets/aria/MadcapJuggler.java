@@ -1,12 +1,14 @@
-// TODO: Finish me!
-
 package mage.sets.aria;
 
 import java.util.UUID;
+
 import mage.MageInt;
+import mage.abilities.common.SimpleStaticAbility;
+import mage.abilities.effects.common.combat.CantBeBlockedByOneEffect;
 import mage.cards.CardImpl;
 import mage.constants.CardType;
 import mage.constants.Rarity;
+import mage.constants.Zone;
 
 public class MadcapJuggler extends CardImpl {
 
@@ -19,6 +21,8 @@ public class MadcapJuggler extends CardImpl {
         this.power = new MageInt(3);
         this.toughness = new MageInt(1);
         this.color.setRed(true);
+
+        this.addAbility(new SimpleStaticAbility(Zone.BATTLEFIELD, new CantBeBlockedByOneEffect(2)));
 
         /*
         Card Text:
