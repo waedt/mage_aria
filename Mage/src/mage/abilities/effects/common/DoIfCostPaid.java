@@ -17,7 +17,7 @@ import mage.util.CardUtil;
 public class DoIfCostPaid extends OneShotEffect {
     protected Effects executingEffects = new Effects();
     private final Cost cost;
-    private String chooseUseText;
+    protected String chooseUseText;
 
     public DoIfCostPaid(Effect effect, Cost cost) {
         this(effect, cost, null);

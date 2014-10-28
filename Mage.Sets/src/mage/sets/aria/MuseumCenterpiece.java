@@ -24,7 +24,7 @@ import mage.filter.predicate.permanent.ControllerPredicate;
 
 public class MuseumCenterpiece extends CardImpl {
 
-    private static final FilterCreaturePermanent filter = new FilterCreaturePermanent("creatures you control");
+    private static final FilterCreaturePermanent filter = new FilterCreaturePermanent("Creatures you control");
 
     static {
         filter.add(new ControllerPredicate(TargetController.YOU));

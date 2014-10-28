@@ -96,4 +96,9 @@ class NutsToYourMagicAlternativeCost extends AlternativeCostImpl {
         }
         return true;
     }
+
+    @Override
+    public String getText() {
+        return "If an aura an opponent controls is attached to a creature you control, you may pay {G} rather than pay Nuts to Your Magic's mana cost.";
+    }
 }

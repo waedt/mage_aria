@@ -1,12 +1,16 @@
-// TODO: Finish me!
-
 package mage.sets.aria;
 
 import java.util.UUID;
+
 import mage.MageInt;
+import mage.Mana;
+import mage.abilities.common.SimpleActivatedAbility;
+import mage.abilities.costs.common.SacrificeSourceCost;
+import mage.abilities.effects.common.AddManaToControllersManaPoolEffect;
 import mage.cards.CardImpl;
 import mage.constants.CardType;
 import mage.constants.Rarity;
+import mage.constants.Zone;
 
 public class PipewayGrunts extends CardImpl {
 
@@ -19,6 +23,8 @@ public class PipewayGrunts extends CardImpl {
         this.power = new MageInt(2);
         this.toughness = new MageInt(3);
         this.color.setRed(true);
+
+        this.addAbility(new SimpleActivatedAbility(Zone.BATTLEFIELD, new AddManaToControllersManaPoolEffect(Mana.RedMana), new SacrificeSourceCost()));
 
         /*
         Card Text:
