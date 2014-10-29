@@ -1,20 +1,16 @@
-// TODO: Finish me!
-
 package mage.sets.aria;
 
 import java.util.UUID;
-import mage.MageInt;
-import mage.cards.CardImpl;
-import mage.constants.CardType;
-import mage.constants.Rarity;
 
-public class Quicksand extends CardImpl {
+public class Quicksand extends mage.sets.tenth.Quicksand {
 
     public Quicksand(UUID ownerId) {
-        super(ownerId, 223, "Quicksand", Rarity.COMMON, new CardType[]{CardType.LAND}, "");
+        super(ownerId);
+        this.cardNumber = 223;
         this.expansionSetCode = "ARI";
 
-        
+        // TODO Verify this should have the same rarity as it does in the
+        //      original printing.
 
         /*
         Card Text:

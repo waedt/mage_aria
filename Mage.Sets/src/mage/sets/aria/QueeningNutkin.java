@@ -1,12 +1,14 @@
-// TODO: Finish me!
-
 package mage.sets.aria;
 
 import java.util.UUID;
+
 import mage.MageInt;
+import mage.abilities.common.EntersBattlefieldTriggeredAbility;
+import mage.abilities.effects.common.CreateTokenEffect;
 import mage.cards.CardImpl;
 import mage.constants.CardType;
 import mage.constants.Rarity;
+import mage.game.permanent.token.SquirrelToken;
 
 public class QueeningNutkin extends CardImpl {
 
@@ -18,6 +20,9 @@ public class QueeningNutkin extends CardImpl {
         this.power = new MageInt(2);
         this.toughness = new MageInt(2);
         this.color.setGreen(true);
+
+        // When Queening Nutkin enters the battlefield, put a 1/1 green Squirrel creature token onto the battlefield.
+        this.addAbility(new EntersBattlefieldTriggeredAbility(new CreateTokenEffect(new SquirrelToken())));
 
         /*
         Card Text:
