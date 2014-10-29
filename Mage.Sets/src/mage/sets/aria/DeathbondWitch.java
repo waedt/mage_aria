@@ -1,5 +1,3 @@
-// TODO: Finish me!
-
 package mage.sets.aria;
 
 import java.util.UUID;
@@ -7,15 +5,22 @@ import java.util.UUID;
 import mage.MageInt;
 import mage.abilities.Ability;
 import mage.abilities.common.BeginningOfUpkeepTriggeredAbility;
+import mage.abilities.common.SimpleStaticAbility;
 import mage.abilities.condition.Condition;
 import mage.abilities.decorator.ConditionalTriggeredAbility;
+import mage.abilities.effects.ReplacementEffectImpl;
 import mage.abilities.effects.common.DamagePlayersEffect;
+import mage.abilities.keyword.DeathtouchAbility;
 import mage.cards.CardImpl;
 import mage.constants.CardType;
+import mage.constants.Duration;
+import mage.constants.Outcome;
 import mage.constants.Rarity;
 import mage.constants.TargetController;
 import mage.constants.Zone;
 import mage.game.Game;
+import mage.game.events.GameEvent;
+import mage.game.events.ZoneChangeEvent;
 
 public class DeathbondWitch extends CardImpl {
 
@@ -29,24 +34,13 @@ public class DeathbondWitch extends CardImpl {
         this.toughness = new MageInt(1);
         this.color.setBlack(true);
 
-        // TODO: How do I implement the "can't be exlied" ability?
-        //       One way might be as a replacement effect that simple cancels
-        //       any attempt to the card into the exile zone (excepting perhaps
-        //       effects that put cards facedown into the exile zone.)
-        //       Okay, so what are the questions about this effect?
-        //        - What happens when X cards are exiled from the top of the
-        //          library and DbW is in the middle of the X?
-        //        - What about FallowShade?
-        //        - Does the card have to be revealed when it would be exiled
-        //          from a hidden information zone?
-        //
-        //       The first and the last are probably addressable in a
-        //       replacement effect; I would just have to be really clever
-        //       about it. The FallowShade one is hard though. I don't think
-        //       I can actually prevent the ability from being activated. I
-        //       might be able to prevent the pump from going off, but that
-        //       seems like a poor compromise.
+        // Deathtouch
+        this.addAbility(DeathtouchAbility.getInstance());
 
+        // Deathbond Witch can't be exiled from anywhere.
+        this.addAbility(new SimpleStaticAbility(Zone.ALL, new CantBeExiledEffect()));
+
+        // At the beginning of your upkeep, if Deathbond Witch is in your graveyard or on the battlefield, each opponent loses 1 life.
         Ability ability = new ConditionalTriggeredAbility(
                 new BeginningOfUpkeepTriggeredAbility(Zone.ALL, new DamagePlayersEffect(1, TargetController.OPPONENT), TargetController.YOU, true),
                 SourceOnBattelfieldOrGraveyardCondition.getInstance(), 
@@ -74,10 +68,6 @@ public class DeathbondWitch extends CardImpl {
 
 }
 
-// TODO Stolen from FiremaneAngel. Maybe there should be more generalized way
-//      to handle this? If Zone could be a C# style enum (with | syntax) this
-//      would be trivial and wouldn't require the ConditionalTriggeredAbility
-//      at all...
 class SourceOnBattelfieldOrGraveyardCondition implements Condition {
 
     private static final SourceOnBattelfieldOrGraveyardCondition fInstance = new SourceOnBattelfieldOrGraveyardCondition();
@@ -98,4 +88,41 @@ class SourceOnBattelfieldOrGraveyardCondition implements Condition {
     }
 
 
+}
+
+class CantBeExiledEffect extends ReplacementEffectImpl {
+
+    public CantBeExiledEffect() {
+        super(Duration.EndOfGame, Outcome.Neutral);
+        this.staticText = "{this} can't be exiled from anywhere.";
+    }
+
+    public CantBeExiledEffect(final CantBeExiledEffect other) {
+        super(other);
+    }
+
+    @Override
+    public CantBeExiledEffect copy() {
+        return new CantBeExiledEffect(this);
+    }
+
+    @Override
+    public boolean replaceEvent(GameEvent event, Ability source, Game game) {
+        return true;
+    }
+
+    @Override
+    public boolean applies(GameEvent event, Ability source, Game game) {
+        if (GameEvent.EventType.ZONE_CHANGE.equals(event.getType())
+                && ((ZoneChangeEvent)event).getToZone() == Zone.EXILED
+                && event.getTargetId().equals(source.getSourceId())) {
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public boolean apply(Game game, Ability source) {
+        return true;
+    }
 }
