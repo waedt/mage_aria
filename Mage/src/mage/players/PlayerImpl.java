@@ -874,6 +874,7 @@ public abstract class PlayerImpl implements Player, Serializable {
         if (!game.replaceEvent(GameEvent.getEvent(GameEvent.EventType.ACTIVATE_ABILITY, ability.getId(), ability.getSourceId(), playerId))) {
             int bookmark = game.bookmarkState();
             if (ability.activate(game, false)) {
+                game.fireEvent(GameEvent.getEvent(GameEvent.EventType.ACTIVATED_MANA_ABILITY, ability.getId(), ability.getSourceId(), playerId));
                 if (ability.resolve(game)) {
                     if (storedBookmark == -1 || storedBookmark > bookmark) { // e.g. usefull for undo Nykthos, Shrine to Nyx
                         setStoredBookmark(bookmark);
